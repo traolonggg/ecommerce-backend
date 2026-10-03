@@ -1,4 +1,4 @@
-export function parseEnvOrigins(...values: (string | undefined)[]) {
+export function parseEnvOrigin(...values: (string | undefined)[]) {
   const out: string[] = [];
   for (const v of values) {
     if (!v) continue;
