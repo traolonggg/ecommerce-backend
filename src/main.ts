@@ -1,23 +1,17 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
-import { parseEnvOrigins } from './utils/parse-env-origins';
+import { parseEnvOrigin } from './helpers/parse-env-origins';
 import { ValidationPipe } from '@nestjs/common';
-import { VersioningType } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-const getCorsAllowList = (config: ConfigService) => {
-  return parseEnvOrigins(
-    config.get<string>('CLIENT_URL'),
-    config.get<string>('CORS_OTHER_URL'),
-  );
+const getCorsAllowList = () => {
+  return parseEnvOrigin(process.env.CLIENT_URL, process.env.CORS_OTHER_URL);
 };
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.use;
-  cookieParser();
-  const config = app.get(ConfigService);
+  app.use(cookieParser());
   //cors
-  const allowList = getCorsAllowList(config);
+  const allowList = getCorsAllowList();
   app.enableCors({
     origin: (requestOrigin: string, callback) => {
       if (!requestOrigin) {
@@ -28,13 +22,18 @@ async function bootstrap() {
         callback(null, true);
         return;
       }
-      //log warning
       callback(null, false);
     },
-    method: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-    allowHeaders: ['ContentType', 'Authorization', 'Accept', 'X-Request-With'],
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTION'],
+    allowHeaders: [
+      'Content-Type',
+      'Authorization',
+      'Accept',
+      'X-Requested-With',
+    ],
     credentials: true,
   });
+  //VALIDATION PIPE
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
@@ -43,9 +42,7 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
-  //API versioning
-  app.setGlobalPrefix('api');
-  app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
-  await app.listen(config.get<number>('PORT') ?? 8080);
+  //API VERSIONING
+  await app.listen(process.env.PORT ?? 8080);
 }
-bootstrap();
+void bootstrap();
