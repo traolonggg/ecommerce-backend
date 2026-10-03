@@ -4,6 +4,7 @@ import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
 import { parseEnvOrigin } from './helpers/parse-env-origins';
 import { ValidationPipe } from '@nestjs/common';
+import { VersioningType } from '@nestjs/common';
 const getCorsAllowList = () => {
   return parseEnvOrigin(process.env.CLIENT_URL, process.env.CORS_OTHER_URL);
 };
@@ -43,6 +44,8 @@ async function bootstrap() {
     }),
   );
   //API VERSIONING
+  app.setGlobalPrefix('api');
+  app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
   await app.listen(process.env.PORT ?? 8080);
 }
 void bootstrap();
