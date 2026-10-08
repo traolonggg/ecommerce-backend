@@ -11,7 +11,7 @@ import {
   buildApiErrorPayload,
   extractFromHttpExceptionBody,
   payloadFromUnknownException,
-} from 'src/helpers/api-filter-response';
+} from 'src/share/helpers/api-filter-response';
 @Catch()
 @Injectable()
 export class AllExceptionFilter implements ExceptionFilter {
